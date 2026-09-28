@@ -15,7 +15,7 @@ import {
 // ForceGraph2D — no SSR (uses canvas)
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), { ssr: false });
 
-const API = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const API = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/+$/, "");
 
 // ── Theme tokens (mirrors dashboard / Overview tab) ───────────────────────────
 const T = {

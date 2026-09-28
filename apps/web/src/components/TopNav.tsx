@@ -22,7 +22,7 @@ const BREADCRUMB_MAP: Record<string, { section: string; label: string }> = {
 };
 
 export function TopNav() {
-  const { isStreaming } = useAMLStore();
+  const { isStreaming, backendConnected } = useAMLStore();
   const pathname = usePathname();
   const router = useRouter();
   const { investigations, addInvestigation, setActiveInvestigation } = useInvestigationStore();
@@ -197,8 +197,8 @@ export function TopNav() {
         <div
           className="flex items-center gap-1.5 px-2.5 py-1 rounded"
           style={{
-            background: isStreaming ? "#DCFCE7" : "#FEF3C7",
-            border: `1px solid ${isStreaming ? "#BBF7D0" : "#FDE68A"}`,
+            background: backendConnected ? "#DCFCE7" : isStreaming ? "#FEF3C7" : "#F1F5F9",
+            border: `1px solid ${backendConnected ? "#BBF7D0" : isStreaming ? "#FDE68A" : "#E2E8F0"}`,
           }}
         >
           {/* Pulsing dot */}
@@ -207,7 +207,7 @@ export function TopNav() {
             style={{
               width: "6px",
               height: "6px",
-              background: isStreaming ? "#16A34A" : "#D97706",
+              background: backendConnected ? "#16A34A" : isStreaming ? "#D97706" : "#94A3B8",
               animation: "pulse-dot 2s ease-in-out infinite",
             }}
           />
@@ -216,10 +216,10 @@ export function TopNav() {
               fontSize: "11px",
               fontWeight: 600,
               letterSpacing: "0.04em",
-              color: isStreaming ? "#15803D" : "#92400E",
+              color: backendConnected ? "#15803D" : isStreaming ? "#92400E" : "#64748B",
             }}
           >
-            {isStreaming ? "LIVE" : "PAUSED"}
+            {backendConnected ? "LIVE CLOUD" : isStreaming ? "SIMULATION" : "PAUSED"}
           </span>
         </div>
 
@@ -229,12 +229,16 @@ export function TopNav() {
           style={{ borderLeft: "1px solid #E2E8F0", paddingLeft: "12px" }}
         >
           <div className="flex items-center gap-1.5">
-            <CheckCircle className="w-3.5 h-3.5" style={{ color: "#16A34A" }} />
-            <span style={{ fontSize: "11px", color: "#64748B", fontWeight: 500 }}>IF-300</span>
+            <CheckCircle className="w-3.5 h-3.5" style={{ color: backendConnected ? "#16A34A" : "#D97706" }} />
+            <span style={{ fontSize: "11px", color: "#64748B", fontWeight: 500 }}>
+              IF Anomaly ({backendConnected ? "Online" : "Local"})
+            </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <CheckCircle className="w-3.5 h-3.5" style={{ color: "#16A34A" }} />
-            <span style={{ fontSize: "11px", color: "#64748B", fontWeight: 500 }}>GraphSAGE</span>
+            <CheckCircle className="w-3.5 h-3.5" style={{ color: backendConnected ? "#16A34A" : "#D97706" }} />
+            <span style={{ fontSize: "11px", color: "#64748B", fontWeight: 500 }}>
+              GATe TGNN ({backendConnected ? "Online" : "Local"})
+            </span>
           </div>
         </div>
 

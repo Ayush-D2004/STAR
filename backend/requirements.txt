@@ -9,6 +9,7 @@ uvicorn[standard]>=0.30
 python-multipart>=0.0.9
 websockets>=12.0
 starlette>=0.40
+gradio>=4.0.0
 
 # ── Config & Environment ──────────────────────────────────────
 pydantic>=2.0
@@ -43,19 +44,4 @@ python-jose[cryptography]>=3.3
 tenacity>=8.2
 
 # ── PyTorch + PyTorch Geometric ───────────────────────────────
-# NOTE: Install these SEPARATELY with the commands below.
-# PyG requires matching torch version and special index URL.
-#
-# CPU Install:
-#   uv pip install torch --index-url https://download.pytorch.org/whl/cpu
-#   uv pip install torch-geometric torch-scatter torch-sparse --find-links https://data.pyg.org/whl/torch-2.5.0+cpu.html
-#
-# GPU Install (CUDA 12.1):
-#   uv pip install torch --index-url https://download.pytorch.org/whl/cu121
-#   uv pip install torch-geometric torch-scatter torch-sparse --find-links https://data.pyg.org/whl/torch-2.5.0+cu121.html
-#
-# After installing torch, uncomment and run:
-# torch>=2.2
-# torch-geometric>=2.5
-# torch-scatter
-# torch-sparse
+torch-geometric>=2.5.0

@@ -36,7 +36,7 @@ interface TxRow {
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-const API = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const API = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/+$/, "");
 const WS_URL = API.replace(/^http/, "ws") + "/ws/inference";
 const NODE_COLORS: Record<string, string> = {
   STABLE: "#64748B", SUSPICIOUS: "#EA580C",

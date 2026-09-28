@@ -25,6 +25,11 @@ interface AMLState {
   isStreaming: boolean;
   streamCount: number;
 
+  // Backend Cloud Connectivity
+  backendConnected: boolean;
+  isWakingUp: boolean;
+  backendEndpoint: string;
+
   // Actions
   setAlerts: (alerts: AMLAlert[]) => void;
   addAlert: (alert: AMLAlert) => void;
@@ -36,6 +41,7 @@ interface AMLState {
   toggleStreaming: () => void;
   incrementStreamCount: () => void;
   updateAlertStatus: (alertId: string, status: AMLAlert["status"]) => void;
+  setBackendStatus: (connected: boolean, isWakingUp?: boolean, endpoint?: string) => void;
 }
 
 export const useAMLStore = create<AMLState>((set) => ({
@@ -43,6 +49,10 @@ export const useAMLStore = create<AMLState>((set) => ({
   transactions: MOCK_TRANSACTIONS,
   graphNodes: MOCK_GRAPH_NODES,
   graphEdges: MOCK_GRAPH_EDGES,
+
+  backendConnected: false,
+  isWakingUp: true,
+  backendEndpoint: "",
 
   selectedNodeId: null,
   selectedAlertId: null,
@@ -118,5 +128,10 @@ export const useAMLStore = create<AMLState>((set) => ({
   incrementStreamCount: () => set((state) => ({ streamCount: state.streamCount + 1 })),
   updateAlertStatus: (alertId, status) => set((state) => ({
     alerts: state.alerts.map((a) => a.id === alertId ? { ...a, status } : a),
+  })),
+  setBackendStatus: (connected, isWakingUp, endpoint) => set((state) => ({
+    backendConnected: connected,
+    isWakingUp: isWakingUp !== undefined ? isWakingUp : (!connected ? state.isWakingUp : false),
+    backendEndpoint: endpoint !== undefined ? endpoint : state.backendEndpoint,
   })),
 }));

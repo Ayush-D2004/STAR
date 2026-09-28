@@ -1,3 +1,14 @@
+---
+title: STAR AML Intelligence Backend
+emoji: 🛡️
+colorFrom: blue
+colorTo: indigo
+sdk: gradio
+app_file: app.py
+pinned: false
+license: mit
+---
+
 # STAR Backend — AML Intelligence Engine
 
 **S**uspicious **T**ransaction **A**nalysis & **R**esponse — FastAPI backend powering real-time Anti-Money Laundering detection using trained ML models + Graph Neural Networks + rule-based detection.

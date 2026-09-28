@@ -6,6 +6,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useAMLStore } from "@/store/useAMLStore";
 import { WEBSOCKET_INTERVAL_MS } from "@/constants";
+import { WS_BASE_URL, BASE_URL } from "@/lib/api";
 import type { AMLAlert, Transaction } from "@/types";
 
 const RECONNECT_INTERVAL_MS = 5000;
@@ -35,6 +36,7 @@ export function useWebSocketSim() {
   const isStreaming = useAMLStore((state) => state.isStreaming);
   const addTransaction = useAMLStore((state) => state.addTransaction);
   const addAlert = useAMLStore((state) => state.addAlert);
+  const setBackendStatus = useAMLStore((state) => state.setBackendStatus);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const [backendConnected, setBackendConnected] = useState(false);
@@ -46,18 +48,16 @@ export function useWebSocketSim() {
     let reconnectTimer: NodeJS.Timeout | null = null;
 
     const connectWS = () => {
-      // Derive backend WS URL from NEXT_PUBLIC_API_URL or current origin
-      const base = (process.env.NEXT_PUBLIC_API_URL as string) || (typeof window !== 'undefined' && window.location?.origin) || 'http://localhost:8000';
-      const wsBase = base.replace(/^http/, "ws");
-      const wsEndpoint = `${wsBase.replace(/\/$/, "")}/ws/stream`;
-      const wsUrl = wsEndpoint;
+      const wsUrl = `${WS_BASE_URL}/ws/stream`;
       try {
+        setBackendStatus(false, true, wsUrl);
         const ws = new WebSocket(wsUrl);
         wsRef.current = ws;
 
         ws.onopen = () => {
           setBackendConnected(true);
-          console.log("[STAR] Connected to real backend WebSocket");
+          setBackendStatus(true, false, wsUrl);
+          console.log("[STAR] Connected to real backend WebSocket:", wsUrl);
         };
 
         ws.onmessage = (event) => {
@@ -108,17 +108,20 @@ export function useWebSocketSim() {
 
         ws.onclose = () => {
           setBackendConnected(false);
-          console.log("[STAR] Backend WS closed — falling back to mock");
+          setBackendStatus(false, false, wsUrl);
+          console.log("[STAR] Backend WS closed — falling back to mock simulation");
           // Schedule reconnect
           reconnectTimer = setTimeout(connectWS, RECONNECT_INTERVAL_MS);
         };
 
         ws.onerror = () => {
           setBackendConnected(false);
+          setBackendStatus(false, false, wsUrl);
           ws.close();
         };
       } catch {
         setBackendConnected(false);
+        setBackendStatus(false, false, wsUrl);
       }
     };
 

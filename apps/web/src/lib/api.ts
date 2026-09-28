@@ -3,7 +3,13 @@
 // Typed client for all STAR backend endpoints
 // ============================================================
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const RAW_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  "http://localhost:8000";
+
+export const BASE_URL = RAW_URL.replace(/\/+$/, "");
+export const WS_BASE_URL = BASE_URL.replace(/^http/, "ws");
 
 // ── Generic fetch helper ───────────────────────────────────────
 async function apiFetch<T>(
@@ -11,20 +17,25 @@ async function apiFetch<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const url = `${BASE_URL}${path}`;
-  const res = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-    ...options,
-  });
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+      ...options,
+    });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`API ${path} failed [${res.status}]: ${err}`);
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`API ${path} failed [${res.status}]: ${err}`);
+    }
+
+    return res.json() as Promise<T>;
+  } catch (err) {
+    console.warn(`[STAR API] Error fetching ${path}:`, err);
+    throw err;
   }
-
-  return res.json() as Promise<T>;
 }
 
 // ── Types ─────────────────────────────────────────────────────
@@ -192,6 +203,18 @@ export const starApi = {
   // Graph
   getSubgraph: (accountId: string, depth = 2) =>
     apiFetch<GraphData>(`/graph/subgraph?account_id=${accountId}&depth=${depth}`),
+
+  getAccountGraph: (accountId: string, depth = 2) =>
+    apiFetch<GraphData>(`/graph/subgraph?account_id=${accountId}&depth=${depth}`),
+
+  pingBackend: async (): Promise<boolean> => {
+    try {
+      const res = await fetch(`${BASE_URL}/health`, { method: "GET", cache: "no-store" });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  },
 
   getFullGraph: () => apiFetch<GraphData>("/graph/full"),
 

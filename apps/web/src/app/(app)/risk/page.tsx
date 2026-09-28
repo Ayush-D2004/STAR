@@ -8,6 +8,8 @@ import { ScoreHistogram } from "@/components/charts/ScoreHistogram";
 import { STAGGER_CONTAINER, STAGGER_ITEM_UP } from "@/animations/variants";
 import { Search, Brain, Target, Zap, AlertTriangle, ShieldCheck } from "lucide-react";
 
+import { BASE_URL, WS_BASE_URL } from "@/lib/api";
+
 export default function RiskEnginePage() {
   const [features, setFeatures] = useState<{name: string, weight: number, color: string}[]>([]);
   const [modelStatus, setModelStatus] = useState<string>("loading");
@@ -26,11 +28,13 @@ export default function RiskEnginePage() {
   
   // 1. Fetch static SHAP features
   useEffect(() => {
+    let isSubscribed = true;
     const fetchStats = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/system/models/isolation-forest/stats");
+        const res = await fetch(`${BASE_URL}/system/models/isolation-forest/stats`);
         if (res.ok) {
           const data = await res.json();
+          if (!isSubscribed) return;
           setModelStatus(data.status);
           if (data.status === "online" && data.top_features) {
             const colors = ["#F43F5E", "#F97316", "#EAB308", "#3B82F6", "#A855F7", "#00F5FF", "#10B981", "#EC4899", "#8B5CF6", "#14B8A6"];
@@ -40,47 +44,64 @@ export default function RiskEnginePage() {
               color: colors[i % colors.length]
             })));
           }
+        } else {
+          // Fallback to /api/system prefix if necessary
+          const altRes = await fetch(`${BASE_URL}/api/system/models/isolation-forest/stats`);
+          if (altRes.ok && isSubscribed) {
+            const data = await altRes.json();
+            setModelStatus(data.status);
+          }
         }
       } catch (e) {
-        // silent catch for offline backend
+        if (isSubscribed) setModelStatus("offline");
       }
     };
     
     fetchStats();
     const interval = setInterval(fetchStats, 5000);
-    return () => clearInterval(interval);
+    return () => {
+      isSubscribed = false;
+      clearInterval(interval);
+    };
   }, []);
 
   // 2. Stream live CSV data for the IF score histogram
   useEffect(() => {
-    let ws: WebSocket;
+    let ws: WebSocket | null = null;
     let isMounted = true;
 
     const connect = () => {
-      ws = new WebSocket("ws://localhost:8000/ws/inference");
+      try {
+        ws = new WebSocket(`${WS_BASE_URL}/ws/inference`);
 
-      ws.onmessage = (event) => {
-        if (!isMounted) return;
-        const msg = JSON.parse(event.data);
-        if ((msg.type === "transaction" || msg.type === "alert") && msg.data && msg.data.if_score !== undefined) {
-          const score = msg.data.if_score;
-          
-          setHistogramData(prev => {
-            const next = [...prev];
-            // Determine bin index (0 to 9)
-            let bin = Math.floor(score * 10);
-            if (bin >= 10) bin = 9;
-            if (bin < 0) bin = 0;
-            
-            next[bin] = { ...next[bin], count: next[bin].count + 1 };
-            return next;
-          });
-        }
-      };
+        ws.onmessage = (event) => {
+          if (!isMounted) return;
+          try {
+            const msg = JSON.parse(event.data);
+            if ((msg.type === "transaction" || msg.type === "alert") && msg.data && msg.data.if_score !== undefined) {
+              const score = msg.data.if_score;
+              
+              setHistogramData(prev => {
+                const next = [...prev];
+                let bin = Math.floor(score * 10);
+                if (bin >= 10) bin = 9;
+                if (bin < 0) bin = 0;
+                
+                next[bin] = { ...next[bin], count: next[bin].count + 1 };
+                return next;
+              });
+            }
+          } catch {
+            // ignore parse error
+          }
+        };
 
-      ws.onclose = () => {
-        if (isMounted) setTimeout(connect, 3000);
-      };
+        ws.onclose = () => {
+          if (isMounted) setTimeout(connect, 3000);
+        };
+      } catch {
+        if (isMounted) setTimeout(connect, 5000);
+      }
     };
 
     connect();

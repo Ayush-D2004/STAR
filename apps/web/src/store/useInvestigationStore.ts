@@ -100,12 +100,12 @@ export const useInvestigationStore = create<InvestigationState>()(
       if (primaryId) {
         try {
           const graphData = await starApi.getAccountGraph(primaryId);
-          if (graphData && graphData.nodes.length > 0) {
+          if (graphData?.nodes && graphData.nodes.length > 0) {
             const subjectNode = graphData.nodes.find(n => n.id === primaryId);
             context["graph_data"] = {
               node_count: graphData.nodes.length,
-              edge_count: graphData.links.length,
-              suspicious_edges: graphData.links.filter(l => l.suspicious).length,
+              edge_count: graphData.links?.length || 0,
+              suspicious_edges: graphData.links?.filter(l => l.suspicious)?.length || 0,
               subject_risk_score: subjectNode?.risk,
               subject_flagged: subjectNode?.flagged,
             };
