@@ -70,14 +70,19 @@ class Neo4jService:
                         pass
                     self._driver = None
                 logger.warning("Neo4j connect attempt %d/%d failed: %s", attempt, max_attempts, e)
+                # If connection refused on localhost, don't block startup with retries
+                err_str = str(e).lower()
+                if "connection refused" in err_str or "127.0.0.1" in err_str or "localhost" in err_str:
+                    logger.info("Localhost Neo4j unreachable, immediately using in-memory NetworkX graph.")
+                    break
                 if attempt < max_attempts:
                     sleep_time = backoff_base * attempt
                     logger.info("Retrying Neo4j in %ds...", sleep_time)
                     time.sleep(sleep_time)
 
         logger.warning(
-            "Neo4j not available after %d attempts (%s). Using in-memory NetworkX graph.",
-            max_attempts, last_exc
+            "Neo4j not available (%s). Using in-memory NetworkX graph.",
+            last_exc
         )
         self._use_neo4j = False
 

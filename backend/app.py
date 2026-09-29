@@ -1,37 +1,24 @@
 # ============================================================
 # STAR — Hugging Face Spaces Entry Point
 # Runs FastAPI + WebSocket server on port 7860 (Hugging Face default)
-# Mounts a Gradio preview dashboard for Hugging Face compatibility
 # ============================================================
 import os
 import uvicorn
-from app.main import app as fastapi_app
 
-# Check if gradio is available; if so, mount a clean status dashboard
+# ZeroGPU compatibility: satisfy Hugging Face ZeroGPU startup probe
 try:
-    import gradio as gr
+    import spaces
 
-    with gr.Blocks(title="STAR AML Intelligence Backend") as demo:
-        gr.Markdown("# 🛡️ STAR — Suspicious Transaction Analysis & Response")
-        gr.Markdown(
-            "Production-grade Anti-Money Laundering Intelligence Engine with "
-            "**GATe Temporal GNN**, **Isolation Forest**, and **Deterministic AML Rule Engine**."
-        )
-        gr.Markdown("### 📡 Active API Endpoints")
-        gr.Markdown(
-            "- **Interactive Swagger UI:** [View Docs](/docs)\n"
-            "- **Health Check:** [Check Liveness](/health)\n"
-            "- **System Diagnostic:** [View Status](/system/health)\n"
-            "- **Live WebSocket Stream:** `/ws/stream`\n"
-            "- **GNN WebSocket Inference:** `/ws/inference`"
-        )
+    @spaces.GPU(duration=5)
+    def _gpu_probe():
+        return True
+except (ImportError, Exception):
+    pass
 
-    # Mount Gradio dashboard at /gradio so root API routes remain unaffected
-    app = gr.mount_gradio_app(fastapi_app, demo, path="/gradio")
-except ImportError:
-    # If gradio not installed, run pure FastAPI
-    app = fastapi_app
+from app.main import app
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 7860))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
+
+
