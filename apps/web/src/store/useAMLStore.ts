@@ -3,6 +3,7 @@
 // Real-time AML state management
 // ============================================================
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import type { AMLAlert, Transaction, GraphNode, GraphEdge, FilterState } from "@/types";
 import { MOCK_ALERTS, MOCK_TRANSACTIONS, MOCK_GRAPH_NODES, MOCK_GRAPH_EDGES } from "@/data";
 
@@ -44,7 +45,9 @@ interface AMLState {
   setBackendStatus: (connected: boolean, isWakingUp?: boolean, endpoint?: string) => void;
 }
 
-export const useAMLStore = create<AMLState>((set) => ({
+export const useAMLStore = create<AMLState>()(
+  persist(
+    (set) => ({
   alerts: MOCK_ALERTS,
   transactions: MOCK_TRANSACTIONS,
   graphNodes: MOCK_GRAPH_NODES,
@@ -134,4 +137,17 @@ export const useAMLStore = create<AMLState>((set) => ({
     isWakingUp: isWakingUp !== undefined ? isWakingUp : (!connected ? state.isWakingUp : false),
     backendEndpoint: endpoint !== undefined ? endpoint : state.backendEndpoint,
   })),
-}));
+}),
+    {
+      name: "star-aml-storage",
+      // Only persist essential display state, not volatile streaming internals
+      partialize: (state) => ({
+        alerts: state.alerts,
+        transactions: state.transactions.slice(0, 50),
+        filters: state.filters,
+        isStreaming: state.isStreaming,
+      }),
+    }
+  )
+);
+

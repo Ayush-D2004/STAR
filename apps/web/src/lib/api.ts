@@ -256,8 +256,7 @@ export function createSTARWebSocket(
   onConnected?: () => void,
   onDisconnected?: () => void,
 ): WebSocket {
-  const wsUrl = BASE_URL.replace("http://", "ws://").replace("https://", "wss://");
-  const ws = new WebSocket(`${wsUrl}/ws/stream`);
+  const ws = new WebSocket(`${WS_BASE_URL}/ws/stream`);
 
   ws.onopen = () => {
     console.log("[STAR WS] Connected to real-time stream");

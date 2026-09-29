@@ -12,6 +12,7 @@ import {
   ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Search, X, Maximize2, Minimize2
 } from "lucide-react";
 import "./tgnn.css";
+import { BASE_URL, WS_BASE_URL } from "@/lib/api";
 
 // ForceGraph2D must be dynamically imported (no SSR — uses canvas/browser APIs)
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), { ssr: false });
@@ -36,8 +37,8 @@ interface TxRow {
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-const API = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/+$/, "");
-const WS_URL = API.replace(/^http/, "ws") + "/ws/inference";
+const API = BASE_URL;
+const WS_URL = `${WS_BASE_URL}/ws/inference`;
 const NODE_COLORS: Record<string, string> = {
   STABLE: "#64748B", SUSPICIOUS: "#EA580C",
   CRITICAL: "#DC2626", CONFIRMED_FRAUD: "#DC2626"
@@ -233,7 +234,7 @@ export default function TGNNDashboard() {
       fetchCases();
       setTimeout(() => graphRef.current?.zoomToFit(1000, 60), 1000);
     }
-  }, [fetchCases, transactions, cases]);
+  }, [fetchCases]);
 
   // Build pattern-aware focus highlight from a transaction row
   const buildFocusFromTx = useCallback((tx: TxRow, gd: GraphData) => {

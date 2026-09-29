@@ -1,6 +1,7 @@
 import { Sidebar } from "@/components/Sidebar";
 import { TopNav } from "@/components/TopNav";
 import { BackendWarmupBanner } from "@/components/ui/BackendWarmupBanner";
+import { AppShell } from "@/components/AppShell";
 
 export default function AppLayout({
   children,
@@ -15,9 +16,10 @@ export default function AppLayout({
         <TopNav />
         <BackendWarmupBanner />
         <main className="flex-1 overflow-y-auto relative">
-          {children}
+          <AppShell>{children}</AppShell>
         </main>
       </div>
     </div>
   );
 }
+

@@ -7,13 +7,12 @@ import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tool
 
 import { useMemo } from "react";
 import { useAMLStore } from "@/store/useAMLStore";
-import { useWebSocketSim } from "@/hooks/useWebSocketSim";
+
 
 export default function TemporalAnalyticsPage() {
   const { transactions } = useAMLStore();
   
-  // Connect to the WebSocket / Simulator so real-time transactions stream while on this page
-  useWebSocketSim();
+
 
   // Helper to generate deterministic pseudo-random numbers to prevent Next.js hydration mismatches
   const hashString = (str: string) => str.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);

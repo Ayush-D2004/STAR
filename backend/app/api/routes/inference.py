@@ -24,9 +24,10 @@ router = APIRouter(prefix="/api", tags=["Inference"])
 async def get_inference_graph():
     """
     Return the full transaction graph JSON for the Force-Graph visualization.
-    Contains nodes (entities) and links (transactions) from the demo scenario.
+    Returns preloaded scenario graph if available, otherwise empty for dynamic build-up.
     """
-    # For the dynamic streaming trial, the graph starts empty and builds up live
+    if inference_service.is_loaded and inference_service.GRAPH_JSON:
+        return inference_service.GRAPH_JSON
     return {"nodes": [], "links": []}
 
 

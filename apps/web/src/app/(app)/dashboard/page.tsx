@@ -8,7 +8,7 @@ import { MetricCard } from "@/components/ui/MetricCard";
 import { TransactionVolumeChart } from "@/components/charts/TransactionVolumeChart";
 import { RiskBadge } from "@/components/ui/RiskBadge";
 import { useAMLStore } from "@/store/useAMLStore";
-import { useWebSocketSim } from "@/hooks/useWebSocketSim";
+
 import { starApi, SystemHealth } from "@/lib/api";
 import {
   Activity,
@@ -54,7 +54,7 @@ export default function DashboardPage() {
     { time: "24:00", volume: 1500, anomaly: 0 },
   ]);
 
-  useWebSocketSim();
+
 
   useEffect(() => {
     setLastUpdated(new Date());

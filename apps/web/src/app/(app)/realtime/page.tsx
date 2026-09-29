@@ -3,13 +3,13 @@
 import { motion } from "framer-motion";
 import { SurfaceCard } from "@/components/ui/GlassCard";
 import { useAMLStore } from "@/store/useAMLStore";
-import { useWebSocketSim } from "@/hooks/useWebSocketSim";
+
 import { Activity, ArrowRight, Server, TriangleAlert, Pause, Play } from "lucide-react";
 import { formatCurrency } from "@/utils/format";
 
 export default function RealtimePage() {
   const { transactions, isStreaming, toggleStreaming } = useAMLStore();
-  useWebSocketSim();
+
 
   return (
     <div className="p-6 max-w-[1600px] mx-auto flex flex-col" style={{ background: "#F4F6F9", minHeight: "100%" }}>

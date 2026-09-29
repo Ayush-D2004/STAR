@@ -117,7 +117,7 @@ def create_app() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,
-        allow_origin_regex=r"^https?://.*",
+        allow_origin_regex=r"^https://(deploy\.d3t7jhck2twtqc\.amplifyapp\.com|[a-z\-]+\.trycloudflare\.com)$",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

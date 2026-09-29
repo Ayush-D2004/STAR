@@ -7,8 +7,12 @@ Thumbs.db
 .idea/
 .venv
 
-# Local env files
+# Local env files (protect credentials)
+.env
+.env.local
 .env*.local
+!.env.example
+!.env.*.example
 
 # Node/Next.js dependencies and build output
 node_modules/

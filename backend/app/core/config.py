@@ -46,6 +46,10 @@ class Settings(BaseSettings):
         # LAN access (Next.js dev server binds to all interfaces)
         "http://192.168.1.34:3000",
         "http://192.168.1.34:3001",
+        # Production: AWS Amplify
+        "https://deploy.d3t7jhck2twtqc.amplifyapp.com",
+        # Cloudflare Tunnel (quick tunnels use random subdomains)
+        "https://pasta-about-retro-furnishings.trycloudflare.com",
     ]
 
     # ── Pipeline Thresholds ──────────────────────────────────
