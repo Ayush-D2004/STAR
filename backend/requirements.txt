@@ -43,4 +43,5 @@ python-jose[cryptography]>=3.3
 tenacity>=8.2
 
 # ── PyTorch + PyTorch Geometric ───────────────────────────────
+torch>=2.2.0
 torch-geometric>=2.5.0
